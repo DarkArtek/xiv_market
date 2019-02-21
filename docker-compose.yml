@@ -1,0 +1,47 @@
+version: '3.7'
+
+services:
+  token_service:
+    image: composer:1.8
+    volumes:
+      - "./src/token_service:/opt/token_service:delegated"
+    env_file: token_service.env
+    networks:
+      - internal
+      - external
+    expose:
+      - 8000
+    entrypoint:
+      - php
+      - artisan
+      - serve
+      - --host
+      - 0.0.0.0
+    working_dir: "/opt/token_service"
+  db:
+    image: influxdb:1.7
+    networks:
+      - internal
+    ports:
+      - 8086:8086
+    volumes:
+      - "./db:/var/lib/influxdb:delegated"
+    environment:
+      INFLUXDB_DB: 'xiv_market'
+  grafana:
+    image: grafana/grafana:5.4.3
+    ports:
+      - 3000:3000
+    networks:
+      - external
+      - internal
+    volumes:
+      - "./grafana:/var/lib/grafana:delegated"
+
+
+networks:
+  internal:
+    internal: true
+  external:
+
+
